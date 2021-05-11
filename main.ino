@@ -59,6 +59,8 @@ void handleNewMessages(int numNewMessages)
   Serial.print("handleNewMessages ");
   Serial.println(numNewMessages);
 
+  String keyboardJson = "[[\"❤️\", \"🧡\", \"💛\"],[\"💚\", \"💙\", \"💜\"],[\"🖤\", \"🤍\", \"🤎\"],[\"wipe\", \"cycle\"]]";
+
   for (int i = 0; i < numNewMessages; i++)
   {
     String chat_id = bot.messages[i].chat_id;
@@ -87,7 +89,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Красный!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Красный!", "", keyboardJson);
     }
     
     //Оранжевый
@@ -99,7 +101,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Оранжевый!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Оранжевый!", "", keyboardJson);
     }
 
     //Желтый
@@ -111,7 +113,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Желтый!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Желтый!", "", keyboardJson);
     }
 
     //Зеленый
@@ -123,7 +125,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Зеленый!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Зеленый!", "", keyboardJson);
     }
 
     //Синий
@@ -135,7 +137,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Синий!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Синий!", "", keyboardJson);
     }
 
     //Фиолетовый
@@ -147,7 +149,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Фиолетовый!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Фиолетовый!", "", keyboardJson);
     }
 
     //Черный
@@ -159,7 +161,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Черный!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Черный!", "", keyboardJson);
     }
 
     //Белый
@@ -171,7 +173,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Белый!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Белый!", "", keyboardJson);
     }
 
     //Коричневый
@@ -183,7 +185,7 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Цвет изменен на Коричневый!", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Коричневый!", "", keyboardJson);
     }
 
     if (text == "/ledon")
@@ -193,7 +195,7 @@ void handleNewMessages(int numNewMessages)
       
       digitalWrite(ledPin, LOW); // turn the LED on (HIGH is the voltage level)
       ledStatus = 1;
-      bot.sendMessage(chat_id, "Led is ON", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Led is ON", "", keyboardJson);
     }
 
     if (text == "/ledoff")
@@ -204,25 +206,25 @@ void handleNewMessages(int numNewMessages)
       }
       strip.show();
       
-      bot.sendMessage(chat_id, "Led is OFF", "");
+      bot.sendMessageWithReplyKeyboard(chat_id, "Led is OFF", "", keyboardJson);
     }
 
     if (text == "/status")
     {
       if (ledStatus)
       {
-        bot.sendMessage(chat_id, "Led is ON", "");
+        bot.sendMessageWithReplyKeyboard(chat_id, "Led is ON", "", keyboardJson);
       }
       else
       {
-        bot.sendMessage(chat_id, "Led is OFF", "");
+        bot.sendMessageWithReplyKeyboard(chat_id, "Led is OFF", "", keyboardJson);
       }
     }
 
     if (text == "/start")
     {
       String welcome = "Чтобы изменить цвет - пришлите мне эмодзи-сердечко, которое покрашено в этот цвет!";
-      bot.sendMessage(chat_id, welcome, "Markdown");
+      bot.sendMessageWithReplyKeyboard(chat_id, welcome, "Markdown", keyboardJson);
     }
   }
 }
