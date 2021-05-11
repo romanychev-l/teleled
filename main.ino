@@ -5,7 +5,29 @@
 #define WIFI_SSID "MVMV"
 #define WIFI_PASSWORD "PMPUtheBEST"
 
+// Telegram BOT Token (Get from Botfather)
+#define BOT_TOKEN "YOUR_TOKEN"
+
+const unsigned long BOT_MTBS = 1000; // mean time between scan messages
+
+X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure secured_client;
+UniversalTelegramBot bot(BOT_TOKEN, secured_client);
+unsigned long bot_lasttime; // last time messages' scan has been done
+
+void handleNewMessages(int numNewMessages)
+{
+  //Serial.print("handleNewMessages ");
+  //Serial.println(numNewMessages);
+
+  for (int i = 0; i < numNewMessages; i++)
+  {
+    String chat_id = bot.messages[i].chat_id;
+    String text = bot.messages[i].text;
+
+    bot.sendMessage(chat_id, text, "");
+  }
+}
 
 void setup()
 {
@@ -41,4 +63,17 @@ void setup()
 
 void loop()
 {
+  if (millis() - bot_lasttime > BOT_MTBS)
+  {
+    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+
+    while (numNewMessages)
+    {
+      Serial.println("got response");
+      handleNewMessages(numNewMessages);
+      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    }
+
+    bot_lasttime = millis();
+  }
 }
