@@ -3,12 +3,14 @@
 #include <UniversalTelegramBot.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
+#include <ArxContainer.h>
 
 // Replace with your network credentials
 #define WIFI_SSID "MVMV"
 #define WIFI_PASSWORD "PMPUtheBEST"
 // Telegram BOT Token (Get from Botfather)
 #define BOT_TOKEN "YOUR_TOKEN"
+#define MY_ID "id"
 
 Adafruit_NeoPixel strip(300, 4, NEO_GRB + NEO_KHZ800);
 
@@ -21,6 +23,15 @@ unsigned long bot_lasttime; // last time messages' scan has been done
 
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
+bool turn = 1;
+
+std::map<String, String> colors {{"❤️", "Красный"}, {"🧡", "Оранжевый"}, {"💛", "Желтый"},
+                                 {"💚", "Зеленый"}, {"💙", "Синий"}, {"💜", "Фиолетовый"},
+                                 {"🖤", "Черный"}, {"🤍", "Белый"}, {"🤎", "Коричневый"}};
+
+std::map<String, std::vector<int> > rgb {{"Красный", {255, 0, 0}}, {"Оранжевый", {255, 165, 0}}, {"Желтый", {255, 255, 0}}, 
+                                         {"Зеленый", {0, 128, 0}}, {"Синий", {0, 0, 255}}, {"Фиолетовый", {128, 0, 128}},
+                                         {"Черный", {0, 0, 0}}, {"Белый", {255, 255, 255}}, {"Коричневый", {165, 42, 42}}};
 
 void colorWipe(uint32_t c, uint8_t wait) {
   for(uint16_t i=0; i<strip.numPixels(); i++) {
@@ -65,11 +76,32 @@ void handleNewMessages(int numNewMessages)
   {
     String chat_id = bot.messages[i].chat_id;
     String text = bot.messages[i].text;
-
+    
     String from_name = bot.messages[i].from_name;
     if (from_name == "")
       from_name = "Guest";
 
+    if (chat_id != MY_ID && turn == 0)
+    {
+      continue;
+    }
+
+    if (text == "on")
+    {
+      turn = 1;
+      bot.sendMessageWithReplyKeyboard(MY_ID, "Бот включен!", "", keyboardJson);
+      continue;
+    }
+
+    if (text == "off")
+    {
+      turn = 0;
+      bot.sendMessageWithReplyKeyboard(MY_ID, "Бот отключен!", "", keyboardJson);
+      continue;
+    }
+
+    bot.sendMessageWithReplyKeyboard(MY_ID, from_name + " изменил цвет", "", keyboardJson);
+    
     if (text == "wipe")
     {
       colorWipe(100, 2);
@@ -80,151 +112,20 @@ void handleNewMessages(int numNewMessages)
       rainbowCycle(2);
     }
 
-    //Красный
-    if (text == "❤️")
-    {
-      // strip.Color(255, 0, 0)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(255, 0, 0));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Красный!", "", keyboardJson);
-    }
-    
-    //Оранжевый
-    if (text == "🧡")
-    {
-      // strip.Color(255, 165, 0)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(255, 165, 0));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Оранжевый!", "", keyboardJson);
-    }
-
-    //Желтый
-    if (text == "💛")
-    {
-      // strip.Color(255, 255, 0)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(255, 255, 0));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Желтый!", "", keyboardJson);
-    }
-
-    //Зеленый
-    if (text == "💚")
-    {
-      // strip.Color(0, 128, 0)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(0, 128, 0));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Зеленый!", "", keyboardJson);
-    }
-
-    //Синий
-    if (text == "💙")
-    {
-      // strip.Color(0, 0, 255)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(0, 0, 255));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Синий!", "", keyboardJson);
-    }
-
-    //Фиолетовый
-    if (text == "💜")
-    {
-      // strip.Color(128, 0, 128)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(128, 0, 128));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Фиолетовый!", "", keyboardJson);
-    }
-
-    //Черный
-    if (text == "🖤")
-    {
-      // strip.Color(0, 0, 0)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(0, 0, 0));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Черный!", "", keyboardJson);
-    }
-
-    //Белый
-    if (text == "🤍")
-    {
-      // strip.Color(255, 255, 255)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(255, 255, 255));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Белый!", "", keyboardJson);
-    }
-
-    //Коричневый
-    if (text == "🤎")
-    {
-      // strip.Color(165, 42, 42)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(165, 42, 42));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на Коричневый!", "", keyboardJson);
-    }
-
-    if (text == "/ledon")
-    {
-      //strip.setPixelColor(1, strip.Color(250, 0, 0));  // указываем цвет первого пикселя
-      //strip.show();  // отправляем информацию на ленту
-      
-      digitalWrite(ledPin, LOW); // turn the LED on (HIGH is the voltage level)
-      ledStatus = 1;
-      bot.sendMessageWithReplyKeyboard(chat_id, "Led is ON", "", keyboardJson);
-    }
-
-    if (text == "/ledoff")
-    {
-      // strip.Color(0, 0, 0)
-      for(i=0; i< strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(0, 0, 0));
-      }
-      strip.show();
-      
-      bot.sendMessageWithReplyKeyboard(chat_id, "Led is OFF", "", keyboardJson);
-    }
-
-    if (text == "/status")
-    {
-      if (ledStatus)
-      {
-        bot.sendMessageWithReplyKeyboard(chat_id, "Led is ON", "", keyboardJson);
-      }
-      else
-      {
-        bot.sendMessageWithReplyKeyboard(chat_id, "Led is OFF", "", keyboardJson);
-      }
-    }
-
     if (text == "/start")
     {
       String welcome = "Чтобы изменить цвет - пришлите мне эмодзи-сердечко, которое покрашено в этот цвет!";
       bot.sendMessageWithReplyKeyboard(chat_id, welcome, "Markdown", keyboardJson);
+    }
+    else 
+    {
+      String color = colors[text];
+      for(i=0; i< strip.numPixels(); i++) {
+        strip.setPixelColor(i, strip.Color(rgb[color][0], rgb[color][1], rgb[color][2]));
+      }
+      strip.show();
+      
+      bot.sendMessageWithReplyKeyboard(chat_id, "Цвет изменен на " + color, "", keyboardJson);
     }
   }
 }
