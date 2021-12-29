@@ -1,4 +1,3 @@
-#!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
 import board
@@ -14,6 +13,10 @@ from aiogram.utils import executor
 
 from config import TOKEN
 
+from aiogram.types import ReplyKeyboardRemove, \
+    ReplyKeyboardMarkup, KeyboardButton, \
+    InlineKeyboardMarkup, InlineKeyboardButton
+
 
 pixels = neopixel.NeoPixel(board.D18,100)
 
@@ -21,7 +24,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
 colors = {"❤️": "Красный", "🧡": "Оранжевый", "💛": "Желтый",
-        "💚": "Зеленый", "💙": "Синий", "💜": "Фиолетовый",
+        "💚": "Синий", "💙": "Зеленый", "💜": "Оранжевый",
         "🖤": "Черный", "🤍": "Белый", "🤎": "Коричневый"}
 
 ind_colors = {0: "Красный", 1: "Оранжевый", 2: "Желтый",
@@ -41,27 +44,34 @@ nums = {0: [1, 2, 3, 4, 5, 6], 1: [1, 6], 2: [1, 2, 4, 5, 7], 3: [1, 2, 5, 6, 7]
 look = 0
 pr = 0
 
+
+kb = ReplyKeyboardMarkup(resize_keyboard=True)
+em = list(colors.keys())
+em_kb = [KeyboardButton(i) for i in em]
+kb.row(em_kb[0], em_kb[1], em_kb[2])
+kb.row(em_kb[3], em_kb[4], em_kb[5])
+kb.row(em_kb[6], em_kb[7], em_kb[8])
+
+
 def change_digit(t):
     num = nums[t]
     
-    '''
-    for i in range(100):
-        #print('i', i)
-        pixels[i] = (0, 0, 0)
-    '''
     current_color = 0
     with open('color.txt', 'r') as f:
         line = f.read()
         
         if len(line):
-            current_color = int(line[0])
+            #current_color = int(line[0])
+            l = line.split()
 
+            current_color = (int(l[0]), int(l[1]), int(l[2]))
 
     for i in range(1, 8):
         for j in range(14):
             if i in num:
                 #print(i)
-                pixels[(i - 1) * 14 + j] = rgb[ind_colors[current_color]]
+                #pixels[(i - 1) * 14 + j] = rgb[ind_colors[current_color]]
+                pixels[(i-1)*14 + j] = current_color
             else:
                 pixels[(i - 1) * 14 + j] = (0, 0, 0)
     
@@ -86,41 +96,52 @@ def change(root=0):
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message):
-    await message.reply("Привет!\nНапиши мне что-нибудь!")
+    await message.reply("Привет!\nНапиши мне что-нибудь!", reply_markup=kb)
 
 
 @dp.message_handler(content_types=['text'])
 async def main_logic(msg):
-    global look
     global current_color
-    '''
-    if look != 0:
-        look = 1
-        await asyncio.sleep(1)
-        
-    look = 1
-    '''
     global pr
-    if msg.text >= '0' and msg.text <= '9':
+    if len(msg.text) == 1 and msg.text >= '0' and msg.text <= '9':
         num = int(msg.text)
         #pr = num 
         change_digit(num)    
-        print("ok") 
     elif msg.text in colors.keys():
-        #current_color.value = colors_ind[colors[msg.text]]
-        current_color = colors_ind[colors[msg.text]]
-
+        print("rgb", rgb[colors[msg.text]], rgb[colors[msg.text]][0])
+        #current_color = colors_ind[colors[msg.text]]
+        col = rgb[colors[msg.text]]
+        current_color = str(col[0]) + ' ' + str(col[1]) + ' ' + str(col[2])
         with open('color.txt', 'w') as f:
-            f.write(str(current_color))
+            f.write(current_color)
         
         change(1)
         print(current_color)
+    else:
+        try:
+            li = msg.text.split()
+            print(li)
+            mass = list(map(int, msg.text.split()))
+            if len(mass) == 3 and mass[0] <= 255 and mass[1] <= 255 and mass[2] <= 255:
+                current_color = str(mass[0]) + ' ' + str(mass[1]) + ' ' + str(mass[2])
+
+                with open('color.txt', 'w') as f:
+                    f.write(current_color)
+
+                change(1)
+        except Exception as e:
+            print("oops")
         #for i in range(0, 100):
         #    pixels[i] = rgb[c]
     
     #await asyncio.sleep(5)
     look = 0
-    await bot.send_message(msg['from']['id'], 'Цвет изменен')
+    try:
+        await bot.send_message(248603604, '@' + msg['from']['username'] + ' изменил цвет')
+    except Exception as e:
+        await bot.send_message(248603604, 'error')
+    
+    await bot.send_message(msg['from']['id'], 'Цвет изменен', reply_markup=kb)
 
 
 def start_bot():
@@ -131,7 +152,6 @@ def timer():
     global pr
     while True:
         if True:
-            #look = 2
             change()
             '''
             t = datetime.now().strftime('%M')
@@ -141,8 +161,6 @@ def timer():
                 change_digit(t)
                 pr = t
             '''
-            #if look == 2:
-            #look = 0
             
 
         #await ayncio.sleep(1)
